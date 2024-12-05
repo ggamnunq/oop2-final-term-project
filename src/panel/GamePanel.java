@@ -6,12 +6,17 @@ import java.awt.*;
 public class GamePanel extends JPanel {
 
     //이미지 파일 로딩
-    private ImageIcon icon = new ImageIcon("src/images/forest.jpg");
-    private Image backgroundImg = icon.getImage();
+    private ImageIcon backgroundIcon = new ImageIcon("src/images/forest.jpg");
+    private ImageIcon walking_soldierIcon = new ImageIcon("src/images/walking_soldier.png");
+    private ImageIcon shooting_soldierIcon = new ImageIcon("src/images/shooting_soldier.png");
+    private Image backgroundImg = backgroundIcon.getImage();
+    private Image walking_soldierImg = walking_soldierIcon.getImage();
+
     private InputPanel inputPanel = new InputPanel();
 
     public GamePanel() {
         setLayout(new BorderLayout());
+        inputPanel.setLocation(200, 200);
         add(inputPanel, BorderLayout.SOUTH);
     }
     
@@ -30,6 +35,7 @@ public class GamePanel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(backgroundImg, 0,0, this.getWidth(), this.getHeight(), null);
+        g.drawImage(walking_soldierImg,40, 580, 150,150,null);
     }
 
 }
