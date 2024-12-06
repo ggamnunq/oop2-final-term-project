@@ -20,7 +20,12 @@ public class ScorePanel extends JPanel {
         super.paintComponent(g);
         g.drawImage(soilderImg, 0,0, this.getWidth(), this.getHeight(), null);
         g.setFont(new Font("Arial", Font.BOLD, 30));
-        g.drawString(score + "명 구함", 130, 30);
+        g.drawString("점수 " + score, 150, 30);
+    }
+
+    public void increaseScore(int score) {
+        this.score += score;
+        repaint();
     }
 
 }

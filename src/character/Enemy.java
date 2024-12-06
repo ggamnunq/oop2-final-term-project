@@ -10,11 +10,10 @@ public class Enemy {
         this.life = life;
     }
 
-    public Enemy(int life, int x, int y, String word) {
+    public Enemy(int life, int x, int y) {
         this(life);
         this.x = x;
         this.y = y;
-        this.word = word;
     }
 
     public int getY() {
@@ -37,4 +36,9 @@ public class Enemy {
     public String getWord() {
         return word;
     }
+
+    public void damage(int damage) {
+        life -= damage;
+    }
+
 }
