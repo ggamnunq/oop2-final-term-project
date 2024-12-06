@@ -1,5 +1,6 @@
 package panel;
 
+import resource.TextSource;
 import character.Enemy;
 import character.John;
 import character.Player;
@@ -7,6 +8,8 @@ import character.Player;
 import javax.swing.*;
 import java.awt.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 public class GamePanel extends JPanel {
@@ -22,6 +25,8 @@ public class GamePanel extends JPanel {
     private Image monsterWeakImg = monster_weakIcon.getImage();
     private Image hostageImg = hostageIcon.getImage();
 
+    private TextSource textSource = null;
+    private ScorePanel scorePanel = null;
     private InputPanel inputPanel = new InputPanel();
 
     private Player player = null;
@@ -30,16 +35,22 @@ public class GamePanel extends JPanel {
     private MonsterMakingThread monsterMakingThread = new MonsterMakingThread();
     private MonsterMovingThread monsterMovingThread = new MonsterMovingThread();
 
+//    private Vector<Enemy> enemies = new Vector<>();
+    private Map<String, Enemy> enemyMap = new HashMap<>();
 
-    Vector<Enemy> enemies = new Vector<>();
 
-    public GamePanel() {
+    public GamePanel(TextSource textSource, ScorePanel scorePanel) {
+
+        this.textSource = textSource;
+        this.scorePanel = scorePanel;
+
         setLayout(new BorderLayout());
         inputPanel.setLocation(200, 200);
         add(inputPanel, BorderLayout.SOUTH);
 
         makePlayer();
         makeHostage();
+
         monsterMakingThread.start();
         monsterMovingThread.start();
     }
@@ -63,7 +74,12 @@ public class GamePanel extends JPanel {
     private void makeMonster(){
         int x = randomLocationInMap();
         int y = randomLocationInMap();
-        enemies.add(new Enemy(1, x, y, "temp"));
+        String randomString = textSource.getRandomString();
+        while (enemyMap.containsKey(randomString)) {
+            randomString = textSource.getRandomString();
+        }
+        enemyMap.put(textSource.getRandomString(), new Enemy(1,x,y));
+//        enemies.add(new Enemy(1, x, y, textSource.getRandomString()));
     }
 
     private void moveMonsters(){
@@ -71,9 +87,13 @@ public class GamePanel extends JPanel {
         int playerX = player.getX();
         int playerY = player.getY();
 
-        for (Enemy enemy : enemies) {
+        for (String word : enemyMap.keySet()) {
+
+            Enemy enemy = enemyMap.get(word);
+
             int enemyX = enemy.getX();
             int enemyY = enemy.getY();
+
             if(enemyX - playerX < 0){ //플레이어보다 왼쪽에 있다면
                 enemyX += 3;
             }else { //플레이어보다 오른쪽에 있다면
@@ -86,7 +106,27 @@ public class GamePanel extends JPanel {
                 enemyY -= 3;
             }
             enemy.setLocation(enemyX, enemyY);
+
         }
+//
+//        for (Enemy enemy : enemies) {
+//
+//            int enemyX = enemy.getX();
+//            int enemyY = enemy.getY();
+//
+//            if(enemyX - playerX < 0){ //플레이어보다 왼쪽에 있다면
+//                enemyX += 3;
+//            }else { //플레이어보다 오른쪽에 있다면
+//                enemyX -= 3;
+//            }
+//
+//            if(enemyY - playerY < 0){ //플레이어보다 위에 있다면
+//                enemyY += 3;
+//            }else{ //플레이어보다 아래에 있다면
+//                enemyY -= 3;
+//            }
+//            enemy.setLocation(enemyX, enemyY);
+//        }
 
     }
 
@@ -132,7 +172,7 @@ public class GamePanel extends JPanel {
                 moveMonsters();
                 repaint();
                 try{
-                    sleep(100);
+                    sleep(200);
                 }catch(InterruptedException e){
                     return;
                 }
@@ -151,9 +191,10 @@ public class GamePanel extends JPanel {
         g.drawImage(walkingSoldierImg, player.getX(), player.getY(), 150,150,null);
         //인질 캐릭터 그리기
         g.drawImage(hostageImg, hostage.x, hostage.y, 100,100,null);
-        for (Enemy enemy : enemies) {
+        for (String word : enemyMap.keySet()) {
+            Enemy enemy = enemyMap.get(word);
             g.drawImage(monsterWeakImg, enemy.getX(), enemy.getY(), 100, 100, null);
-            g.drawString(enemy.getWord(), enemy.getX()+50, enemy.getY()+50);
+            g.drawString(word, enemy.getX()+50, enemy.getY()+50);
         }
 
     }

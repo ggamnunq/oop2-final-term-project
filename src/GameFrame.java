@@ -1,3 +1,4 @@
+import resource.TextSource;
 import panel.GamePanel;
 import panel.ScorePanel;
 import panel.StatusPanel;
@@ -7,9 +8,10 @@ import java.awt.*;
 
 public class GameFrame extends JFrame {
 
+    private TextSource textSource = new TextSource();
     private ScorePanel scorePanel = new ScorePanel();
     private StatusPanel statusPanel = new StatusPanel();
-    private GamePanel gamePanel = new GamePanel();
+    private GamePanel gamePanel = new GamePanel(textSource, scorePanel);
 
     public GameFrame() {
 

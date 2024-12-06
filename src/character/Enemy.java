@@ -10,6 +10,12 @@ public class Enemy {
         this.life = life;
     }
 
+    public Enemy(int life, int x, int y) {
+        this(life);
+        this.x = x;
+        this.y = y;
+    }
+
     public Enemy(int life, int x, int y, String word) {
         this(life);
         this.x = x;
