@@ -8,9 +8,10 @@ import character.Player;
 import javax.swing.*;
 import java.awt.*;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
 public class GamePanel extends JPanel {
 
@@ -35,9 +36,7 @@ public class GamePanel extends JPanel {
     private MonsterMakingThread monsterMakingThread = new MonsterMakingThread();
     private MonsterMovingThread monsterMovingThread = new MonsterMovingThread();
 
-//    private Vector<Enemy> enemies = new Vector<>();
     private Map<String, Enemy> enemyMap = new HashMap<>();
-
 
     public GamePanel(TextSource textSource, ScorePanel scorePanel) {
 
@@ -55,8 +54,8 @@ public class GamePanel extends JPanel {
         monsterMovingThread.start();
     }
 
-    public int randomLocationInMap(){
-        return (int) (Math.random() * 600) + 100;
+    private int randomLocationInMap(){
+        return (int) (Math.random() * 600) + 50;
     }
 
     private void makePlayer() {
@@ -78,8 +77,7 @@ public class GamePanel extends JPanel {
         while (enemyMap.containsKey(randomString)) {
             randomString = textSource.getRandomString();
         }
-        enemyMap.put(textSource.getRandomString(), new Enemy(1,x,y));
-//        enemies.add(new Enemy(1, x, y, textSource.getRandomString()));
+        enemyMap.put(textSource.getRandomString(), new Enemy(3,x,y));
     }
 
     private void moveMonsters(){
@@ -108,27 +106,26 @@ public class GamePanel extends JPanel {
             enemy.setLocation(enemyX, enemyY);
 
         }
-//
-//        for (Enemy enemy : enemies) {
-//
-//            int enemyX = enemy.getX();
-//            int enemyY = enemy.getY();
-//
-//            if(enemyX - playerX < 0){ //플레이어보다 왼쪽에 있다면
-//                enemyX += 3;
-//            }else { //플레이어보다 오른쪽에 있다면
-//                enemyX -= 3;
-//            }
-//
-//            if(enemyY - playerY < 0){ //플레이어보다 위에 있다면
-//                enemyY += 3;
-//            }else{ //플레이어보다 아래에 있다면
-//                enemyY -= 3;
-//            }
-//            enemy.setLocation(enemyX, enemyY);
-//        }
 
     }
+
+    // 몬스터 때리는 메서드
+    private boolean hitEnemy(String word){
+
+        Enemy enemy = enemyMap.get(word);
+        enemy.damage(1);
+        repaint();
+
+        enemyMap.remove(word);
+        if (enemy.getLife() > 0) {
+            enemyMap.put(textSource.getRandomString(), enemy);
+        }
+//        if (enemy.getLife() <= 0) {
+//            enemyMap.remove(word);
+//        }
+        return true;
+    }
+
 
     class InputPanel extends JPanel {
 
@@ -138,10 +135,26 @@ public class GamePanel extends JPanel {
             //textfield 내의 글씨를 가운데 정렬
             tf.setHorizontalAlignment(SwingConstants.CENTER);
             add(tf);
+            tf.addActionListener( new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JTextField t = (JTextField) e.getSource();
+                    String text = t.getText();
+                    if (text.length() == 0) {
+                        return;
+                    }
+
+                    // 단어에 해당하는 몬스터 존재할 경우, 몬스터 때림
+                    if(enemyMap.containsKey(text)){
+                        hitEnemy(text);
+                    }
+                    t.setText("");
+                }
+
+            });
         }
     }
-
-
 
     //3초마다 몬스터 하나씩 증가하는 스레드
     class MonsterMakingThread extends Thread {
@@ -181,7 +194,6 @@ public class GamePanel extends JPanel {
 
     }
 
-
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -194,7 +206,7 @@ public class GamePanel extends JPanel {
         for (String word : enemyMap.keySet()) {
             Enemy enemy = enemyMap.get(word);
             g.drawImage(monsterWeakImg, enemy.getX(), enemy.getY(), 100, 100, null);
-            g.drawString(word, enemy.getX()+50, enemy.getY()+50);
+            g.drawString(word, enemy.getX()+25, enemy.getY());
         }
 
     }
