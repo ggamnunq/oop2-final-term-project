@@ -77,7 +77,7 @@ public class GamePanel extends JPanel {
         while (enemyMap.containsKey(randomString)) {
             randomString = textSource.getRandomString();
         }
-        enemyMap.put(textSource.getRandomString(), new Enemy(3,x,y));
+        enemyMap.put(textSource.getRandomString(), new Enemy(2,x,y));
     }
 
     private void moveMonsters(){
@@ -117,12 +117,12 @@ public class GamePanel extends JPanel {
         repaint();
 
         enemyMap.remove(word);
-        if (enemy.getLife() > 0) {
+        if (enemy.getLife() > 0) { //때렸는데도 몬스터 살이있는 경우 몬스터에 할당된 단어 변경
             enemyMap.put(textSource.getRandomString(), enemy);
+        }else{ //때려서 몬스터가 죽은 경우, 점수 증가
+            scorePanel.increaseScore(1);
         }
-//        if (enemy.getLife() <= 0) {
-//            enemyMap.remove(word);
-//        }
+
         return true;
     }
 
