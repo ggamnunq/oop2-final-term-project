@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GamePanel extends JPanel {
 
@@ -37,7 +38,7 @@ public class GamePanel extends JPanel {
     private MonsterMakingThread monsterMakingThread = new MonsterMakingThread();
     private MonsterMovingThread monsterMovingThread = new MonsterMovingThread();
 
-    private Map<String, Enemy> enemyMap = new HashMap<>();
+    private Map<String, Enemy> enemyMap = new ConcurrentHashMap<>();
 
     public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel) {
 
@@ -84,6 +85,9 @@ public class GamePanel extends JPanel {
 
     private void moveMonsters(){
 
+        int moveDistance = 3;
+        int crashXRange = 30;
+        int crashYRange = 50;
         int playerX = player.getX();
         int playerY = player.getY();
 
@@ -95,17 +99,27 @@ public class GamePanel extends JPanel {
             int enemyY = enemy.getY();
 
             if(enemyX - playerX < 0){ //플레이어보다 왼쪽에 있다면
-                enemyX += 3;
+                enemyX += moveDistance;
             }else { //플레이어보다 오른쪽에 있다면
-                enemyX -= 3;
+                enemyX -= moveDistance;
             }
 
             if(enemyY - playerY < 0){ //플레이어보다 위에 있다면
-                enemyY += 3;
+                enemyY += moveDistance;
             }else{ //플레이어보다 아래에 있다면
-                enemyY -= 3;
+                enemyY -= moveDistance;
             }
-            enemy.setLocation(enemyX, enemyY);
+
+            // 플레이어와 닿을 떄
+            // 몬스터가 한 번 움직일 때 x,y 3칸씩 움직이기 때문에 플레이어와 닿을 때를 구하기 위해서는
+            // 몬스터가 ( 플레이어의 x,y 좌표 += crashRange ) 범위 안에 있어야 한다.
+            if ((enemyX > playerX - crashXRange && enemyX < playerX + crashXRange) && (enemyY > playerY - crashYRange && enemyY < playerY + crashYRange)) {
+                enemyMap.remove(word);
+                statusPanel.playerDamaged();
+            }else{ //플레이어와 닿지 않을 때
+                enemy.setLocation(enemyX, enemyY);
+            }
+
 
         }
 
@@ -153,17 +167,14 @@ public class GamePanel extends JPanel {
                     if (statusPanel.getCurrentBulletAmount() > 0) {
 
                         statusPanel.decreaseBullet(); //총알 감소
-
                         // 단어에 해당하는 몬스터 존재하면 몬스터 때림
                         if(enemyMap.containsKey(text) ){
                             hitEnemy(text); //몬스터 때림
                         }
-
                         // 총알 모두 소모 시 재장전
                         if (statusPanel.getCurrentBulletAmount() <= 0) {
                             statusPanel.reload();
                         }
-
                     }
                     // 입력 시 TextField 글씨 비움 ( 조건 상관 x )
                     t.setText("");
@@ -203,7 +214,7 @@ public class GamePanel extends JPanel {
                 moveMonsters();
                 repaint();
                 try{
-                    sleep(200);
+                    sleep(50);
                 }catch(InterruptedException e){
                     return;
                 }
