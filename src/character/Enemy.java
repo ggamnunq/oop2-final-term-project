@@ -16,6 +16,10 @@ public class Enemy {
         this.y = y;
     }
 
+    public void damaged(int damage) {
+        life -= damage;
+    }
+
     public int getY() {
         return y;
     }
@@ -35,10 +39,6 @@ public class Enemy {
 
     public String getWord() {
         return word;
-    }
-
-    public void damage(int damage) {
-        life -= damage;
     }
 
 }
