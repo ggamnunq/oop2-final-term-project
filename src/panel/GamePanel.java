@@ -29,6 +29,7 @@ public class GamePanel extends JPanel {
     private TextSource textSource = null;
     private ScorePanel scorePanel = null;
     private InputPanel inputPanel = new InputPanel();
+    private StatusPanel statusPanel = new StatusPanel();
 
     private Player player = null;
     private Point hostage = null;
@@ -38,10 +39,11 @@ public class GamePanel extends JPanel {
 
     private Map<String, Enemy> enemyMap = new HashMap<>();
 
-    public GamePanel(TextSource textSource, ScorePanel scorePanel) {
+    public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel) {
 
         this.textSource = textSource;
         this.scorePanel = scorePanel;
+        this.statusPanel = statusPanel;
 
         setLayout(new BorderLayout());
         inputPanel.setLocation(200, 200);
@@ -113,7 +115,8 @@ public class GamePanel extends JPanel {
     private boolean hitEnemy(String word){
 
         Enemy enemy = enemyMap.get(word);
-        enemy.damage(1);
+        // 총알이 남아있으면 총 쏨
+        enemy.damaged(1);
         repaint();
 
         enemyMap.remove(word);
@@ -145,11 +148,26 @@ public class GamePanel extends JPanel {
                         return;
                     }
 
-                    // 단어에 해당하는 몬스터 존재할 경우, 몬스터 때림
-                    if(enemyMap.containsKey(text)){
-                        hitEnemy(text);
+
+                    // 총알이 있으면 일단 발사 -> 총알 감소 -> 몬스터 때림 -> 재장전
+                    if (statusPanel.getCurrentBulletAmount() > 0) {
+
+                        statusPanel.decreaseBullet(); //총알 감소
+
+                        // 단어에 해당하는 몬스터 존재하면 몬스터 때림
+                        if(enemyMap.containsKey(text) ){
+                            hitEnemy(text); //몬스터 때림
+                        }
+
+                        // 총알 모두 소모 시 재장전
+                        if (statusPanel.getCurrentBulletAmount() <= 0) {
+                            statusPanel.reload();
+                        }
+
                     }
+                    // 입력 시 TextField 글씨 비움 ( 조건 상관 x )
                     t.setText("");
+
                 }
 
             });
@@ -167,7 +185,7 @@ public class GamePanel extends JPanel {
                 makeMonster();
                 repaint();
                 try{
-                    sleep(3000);
+                    sleep(5000);
                 }catch(InterruptedException e){
                     return;
                 }
