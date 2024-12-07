@@ -148,17 +148,18 @@ public class GamePanel extends JPanel {
                         return;
                     }
 
-                    // 단어 입력하면 총알 발사( 하나 감소 ) && 단어 검사 후 몬스터 때림
+
+                    // 총알이 있으면 일단 발사 -> 총알 감소 -> 몬스터 때림 -> 재장전
                     if (statusPanel.getCurrentBulletAmount() > 0) {
 
                         statusPanel.decreaseBullet(); //총알 감소
 
-                        // 단어에 해당하는 몬스터 존재하면 -> 몬스터 때림
+                        // 단어에 해당하는 몬스터 존재하면 몬스터 때림
                         if(enemyMap.containsKey(text) ){
                             hitEnemy(text); //몬스터 때림
                         }
 
-                        // 총알 발사 후 총알 모두 소모 시 재장전
+                        // 총알 모두 소모 시 재장전
                         if (statusPanel.getCurrentBulletAmount() <= 0) {
                             statusPanel.reload();
                         }
