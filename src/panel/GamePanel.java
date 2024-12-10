@@ -10,7 +10,6 @@ import java.awt.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -66,7 +65,6 @@ public class GamePanel extends JPanel {
         player = new John();
         player.setX(randomLocationInMap());
         player.setY(randomLocationInMap());
-
     }
 
     private void makeHostage() {
@@ -85,7 +83,7 @@ public class GamePanel extends JPanel {
 
     private void moveMonsters(){
 
-        int moveDistance = 3;
+        int moveDistance = 1;
         int crashXRange = 30;
         int crashYRange = 50;
         int playerX = player.getX();
@@ -113,33 +111,31 @@ public class GamePanel extends JPanel {
             // 플레이어와 닿을 떄
             // 몬스터가 한 번 움직일 때 x,y 3칸씩 움직이기 때문에 플레이어와 닿을 때를 구하기 위해서는
             // 몬스터가 ( 플레이어의 x,y 좌표 += crashRange ) 범위 안에 있어야 한다.
-            if ((enemyX > playerX - crashXRange && enemyX < playerX + crashXRange) && (enemyY > playerY - crashYRange && enemyY < playerY + crashYRange)) {
+            if ((enemyX > playerX - crashXRange && enemyX < playerX + crashXRange)
+                    && (enemyY > playerY - crashYRange && enemyY < playerY + crashYRange)) {
                 enemyMap.remove(word);
                 statusPanel.playerDamaged();
             }else{ //플레이어와 닿지 않을 때
                 enemy.setLocation(enemyX, enemyY);
             }
-
-
         }
-
     }
 
     // 몬스터 때리는 메서드
     private boolean hitEnemy(String word){
 
         Enemy enemy = enemyMap.get(word);
-        // 총알이 남아있으면 총 쏨
-        enemy.damaged(1);
+        enemy.damaged(1); // 몬스터에 데미지 입힘
         repaint();
 
-        enemyMap.remove(word);
-        if (enemy.getLife() > 0) { //때렸는데도 몬스터 살이있는 경우 몬스터에 할당된 단어 변경
+        enemyMap.remove(word); // 때리면 word를 가진 몬스터가 사라짐
+
+        if (enemy.getLife() > 0) { //때렸는데도 몬스터 살이있는 경우
+            // 몬스터에 할당된 단어 변경 ( map의 key만 다른 단어로 하고, Enemy 객체는 동일한 거를 넣음 -> 좌표 유지 )
             enemyMap.put(textSource.getRandomString(), enemy);
         }else{ //때려서 몬스터가 죽은 경우, 점수 증가
             scorePanel.increaseScore(1);
         }
-
         return true;
     }
 
@@ -178,9 +174,7 @@ public class GamePanel extends JPanel {
                     }
                     // 입력 시 TextField 글씨 비움 ( 조건 상관 x )
                     t.setText("");
-
                 }
-
             });
         }
     }
@@ -202,7 +196,6 @@ public class GamePanel extends JPanel {
                 }
             }
         }
-
     }
 
     //모든 몬스터가 플레이어 방향으로 움직이는 스레드
@@ -214,13 +207,12 @@ public class GamePanel extends JPanel {
                 moveMonsters();
                 repaint();
                 try{
-                    sleep(50);
+                    sleep(100);
                 }catch(InterruptedException e){
                     return;
                 }
             }
         }
-
     }
 
     @Override
@@ -237,7 +229,5 @@ public class GamePanel extends JPanel {
             g.drawImage(monsterWeakImg, enemy.getX(), enemy.getY(), 100, 100, null);
             g.drawString(word, enemy.getX()+25, enemy.getY());
         }
-
     }
-
 }
