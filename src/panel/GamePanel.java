@@ -1,5 +1,6 @@
 package panel;
 
+import resource.ScoreRecord;
 import resource.TextSource;
 import character.Enemy;
 import character.John;
@@ -26,10 +27,15 @@ public class GamePanel extends JPanel {
     private Image monsterWeakImg = monster_weakIcon.getImage();
     private Image hostageImg = hostageIcon.getImage();
 
+    // 기록 로딩
     private TextSource textSource = null;
+    private ScoreRecord scoreRecord = new ScoreRecord();
+
+    // 패널들 로딩
     private ScorePanel scorePanel = null;
-    private InputPanel inputPanel = new InputPanel();
+    private InputNamePanel inputNamePanel = null;
     private StatusPanel statusPanel = new StatusPanel();
+    private InputPanel inputPanel = new InputPanel();
 
     private Player player = null;
     private Point hostage = null;
@@ -39,11 +45,13 @@ public class GamePanel extends JPanel {
 
     private Map<String, Enemy> enemyMap = new ConcurrentHashMap<>();
 
-    public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel) {
+    public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel, InputNamePanel inputNamePanel) {
 
-        this.textSource = textSource;
         this.scorePanel = scorePanel;
         this.statusPanel = statusPanel;
+        this.inputNamePanel = inputNamePanel;
+
+        this.textSource = textSource;
 
         setLayout(new BorderLayout());
         inputPanel.setLocation(200, 200);
@@ -56,24 +64,24 @@ public class GamePanel extends JPanel {
         monsterMovingThread.start();
     }
 
-    private int randomLocationInMap(){
+    private int getRandomLocationInMap(){
         return (int) (Math.random() * 600) + 50;
     }
 
     private void makePlayer() {
 
         player = new John();
-        player.setX(randomLocationInMap());
-        player.setY(randomLocationInMap());
+        player.setX(getRandomLocationInMap());
+        player.setY(getRandomLocationInMap());
     }
 
     private void makeHostage() {
-        hostage = new Point( randomLocationInMap(), randomLocationInMap());
+        hostage = new Point( getRandomLocationInMap(), getRandomLocationInMap());
     }
 
     private void makeMonster(){
-        int x = randomLocationInMap();
-        int y = randomLocationInMap();
+        int x = getRandomLocationInMap();
+        int y = getRandomLocationInMap();
         String randomString = textSource.getRandomString();
         while (enemyMap.containsKey(randomString)) {
             randomString = textSource.getRandomString();
@@ -115,10 +123,27 @@ public class GamePanel extends JPanel {
                     && (enemyY > playerY - crashYRange && enemyY < playerY + crashYRange)) {
                 enemyMap.remove(word);
                 statusPanel.playerDamaged();
+
+                // 플레이어 사망
+                if (statusPanel.getLife() <= 0) {
+                    gameOver();
+                }
+
             }else{ //플레이어와 닿지 않을 때
                 enemy.setLocation(enemyX, enemyY);
             }
         }
+    }
+
+    // 게임 오버
+    private void gameOver(){
+
+        // 몬스터 이동, 생성 스레드 종료
+        monsterMakingThread.interrupt();
+        monsterMovingThread.interrupt();
+
+        // 이름&점수 기록
+        scoreRecord.recordScore(inputNamePanel.getName(), scorePanel.getScore());
     }
 
     // 몬스터 때리는 메서드

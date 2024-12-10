@@ -28,4 +28,8 @@ public class ScorePanel extends JPanel {
         repaint();
     }
 
+    public int getScore() {
+        return score;
+    }
+
 }

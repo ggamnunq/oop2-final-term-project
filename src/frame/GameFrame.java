@@ -13,13 +13,10 @@ public class GameFrame extends JFrame {
     private SelectCharacterPanel selectCharacterPanel = new SelectCharacterPanel(this);
     private SelectDifficultyPanel selectDifficultyPanel = new SelectDifficultyPanel(this);
     private HowToPlayPanel howToPlayPanel = new HowToPlayPanel(this);
+    private InputNamePanel inputNamePanel = new InputNamePanel(this);
     private TextSource textSource = new TextSource();
     private ScorePanel scorePanel = new ScorePanel();
     private StatusPanel statusPanel = new StatusPanel();
-
-    private BasePanel basePanel = new BasePanel(this);
-
-    private GamePanel gamePanel = null;
 
     public GameFrame() {
 
@@ -51,18 +48,15 @@ public class GameFrame extends JFrame {
             case HOW_TO_PLAY:
                 setContentPane(howToPlayPanel);
                 break;
+            case INPUT_PLAYER_NAME:
+                setContentPane(inputNamePanel);
+                break;
             default:
                 // 찾는 enum 값이 없을 경우 예외 발생
                 throw new IllegalArgumentException();
 
         }
 
-        showPanel();
-    }
-
-    // 게임 화면으로 이동
-    public void startGame(){
-        setContentPane(makeSplit()); //분할된 화면(panel)을 컨탠트팬으로 지정
         showPanel();
     }
 
@@ -86,7 +80,7 @@ public class GameFrame extends JFrame {
         vPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
         //게임 시작 버튼을 누르는 시기에 GamePanel 객체를 만들도록 함
-        hPane.setLeftComponent(new GamePanel(textSource, scorePanel, statusPanel));
+        hPane.setLeftComponent(new GamePanel(textSource, scorePanel, statusPanel, inputNamePanel));
         hPane.setRightComponent(vPane);
         vPane.setDividerLocation(400);
         vPane.setTopComponent(scorePanel);
