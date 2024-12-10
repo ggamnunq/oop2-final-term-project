@@ -19,7 +19,7 @@ public class SelectDifficultyPanel extends BasePanel {
     public SelectDifficultyPanel(GameFrame gameFrame) {
         super(gameFrame);
         setLayout(null);
-        putChangePanelButton(this, nextLabel, Panels.GAME, 900,650);
+        putChangePanelButton(this, nextLabel, Panels.INPUT_PLAYER_NAME, 900,650);
         putChangePanelButton(this, previousLabel, Panels.SELECT_CHARACTER, 100,650);
     }
 

@@ -15,10 +15,15 @@ public class BasePanel extends JPanel {
         this.gameFrame = gameFrame;
     }
 
-    public void putChangePanelButton(JPanel jpanel, JLabel jLabel, Panels toPanel, int xPos, int yPos) {
-
+    public void putButton(JPanel jpanel, JLabel jLabel, int xPos, int yPos) {
         jLabel.setSize(200,110);
         jLabel.setLocation(xPos, yPos);
+        jpanel.add(jLabel);
+    }
+
+    public void putChangePanelButton(JPanel jpanel, JLabel jLabel, Panels toPanel, int xPos, int yPos) {
+
+        putButton(jpanel, jLabel, xPos, yPos);
         jLabel.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -27,7 +32,6 @@ public class BasePanel extends JPanel {
             }
 
         });
-        jpanel.add(jLabel);
     }
 
 }

@@ -13,7 +13,7 @@ public class StatusPanel extends JPanel {
 
     private int maxBulletAmount = 10;
     private int currentBulletAmount = 10;
-    private int life = 5;
+    private int life = 1;
     private boolean isReloading = false;
 
     public StatusPanel() {
@@ -93,4 +93,9 @@ public class StatusPanel extends JPanel {
     public int getCurrentBulletAmount() {
         return currentBulletAmount;
     }
+
+    public int getLife() {
+        return life;
+    }
+
 }
