@@ -106,8 +106,7 @@ public class GamePanel extends JPanel {
     private void makePlayer() {
 
         player = new John();
-        player.setX(getRandomLocationInMap());
-        player.setY(getRandomLocationInMap());
+        player.setPosition(new Point(getRandomLocationInMap(), getRandomLocationInMap()));
     }
 
     private void makeHostage() {
@@ -115,14 +114,12 @@ public class GamePanel extends JPanel {
     }
 
     private void makeMonster(){
-//        int x = getRandomLocationInMap();
-//        int y = getRandomLocationInMap();
         Point randomLocation = getRandomSideLocationInMap();
         String randomString = textSource.getRandomString();
         while (enemyMap.containsKey(randomString)) {
             randomString = textSource.getRandomString();
         }
-        enemyMap.put(textSource.getRandomString(), new Enemy(2,randomLocation.y,randomLocation.x));
+        enemyMap.put(textSource.getRandomString(), new Enemy(2, randomLocation));
     }
 
     private void moveMonsters(){
@@ -130,33 +127,30 @@ public class GamePanel extends JPanel {
         int moveDistance = 1;
         int crashXRange = 30;
         int crashYRange = 50;
-        int playerX = player.getX();
-        int playerY = player.getY();
+        Point playerPos = player.getPosition();
 
         for (String word : enemyMap.keySet()) {
 
             Enemy enemy = enemyMap.get(word);
+            Point enemyPosition = enemy.getPosition();
 
-            int enemyX = enemy.getX();
-            int enemyY = enemy.getY();
-
-            if(enemyX - playerX < 0){ //플레이어보다 왼쪽에 있다면
-                enemyX += moveDistance;
+            if(enemyPosition.x - playerPos.getX() < 0){ //플레이어보다 왼쪽에 있다면
+                enemyPosition.x += moveDistance;
             }else { //플레이어보다 오른쪽에 있다면
-                enemyX -= moveDistance;
+                enemyPosition.x -= moveDistance;
             }
 
-            if(enemyY - playerY < 0){ //플레이어보다 위에 있다면
-                enemyY += moveDistance;
+            if(enemyPosition.y - playerPos.getY() < 0){ //플레이어보다 위에 있다면
+                enemyPosition.y += moveDistance;
             }else{ //플레이어보다 아래에 있다면
-                enemyY -= moveDistance;
+                enemyPosition.y -= moveDistance;
             }
 
             // 플레이어와 닿을 떄
             // 몬스터가 한 번 움직일 때 x,y 3칸씩 움직이기 때문에 플레이어와 닿을 때를 구하기 위해서는
             // 몬스터가 ( 플레이어의 x,y 좌표 += crashRange ) 범위 안에 있어야 한다.
-            if ((enemyX > playerX - crashXRange && enemyX < playerX + crashXRange)
-                    && (enemyY > playerY - crashYRange && enemyY < playerY + crashYRange)) {
+            if ((enemyPosition.x > playerPos.x - crashXRange && enemyPosition.x < playerPos.x + crashXRange)
+                    && (enemyPosition.y > playerPos.y - crashYRange && enemyPosition.y < playerPos.y + crashYRange)) {
                 enemyMap.remove(word);
                 statusPanel.playerDamaged();
 
@@ -165,8 +159,6 @@ public class GamePanel extends JPanel {
                     gameOver(scorePanel.getScore());
                 }
 
-            }else{ //플레이어와 닿지 않을 때
-                enemy.setLocation(enemyX, enemyY);
             }
         }
     }
@@ -184,6 +176,13 @@ public class GamePanel extends JPanel {
         scoreRecord.recordScore(inputNamePanel.getName(), score);
     }
 
+    // 플레이어 움직임
+    private void movePlayer(){
+
+
+
+    }
+
     // 몬스터 때리는 메서드
     private void hitEnemy(String word){
 
@@ -196,8 +195,11 @@ public class GamePanel extends JPanel {
         if (enemy.getLife() > 0) { //때렸는데도 몬스터 살이있는 경우
             // 몬스터에 할당된 단어 변경 ( map의 key만 다른 단어로 하고, Enemy 객체는 동일한 거를 넣음 -> 좌표 유지 )
             enemyMap.put(textSource.getRandomString(), enemy);
-        }else{ //때려서 몬스터가 죽은 경우, 점수 증가
+        }else{ //때려서 몬스터가 죽은 경우
+            //점수 증가
             scorePanel.increaseScore(1);
+            //플레이어가 인질 방향으로 움직임
+            movePlayer();
         }
 
     }
@@ -327,21 +329,39 @@ public class GamePanel extends JPanel {
         }
     }
 
+    class PlayerMovingThread extends Thread {
+
+        private int x, y;
+
+        public PlayerMovingThread(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public void run() {
+
+
+
+        }
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         //배경이미지 그리기
         g.drawImage(backgroundImg, 0,0, this.getWidth(), this.getHeight(), null);
         //플레이어 그리기
-        g.drawImage(walkingSoldierImg, player.getX(), player.getY(), 150,150,null);
+        g.drawImage(walkingSoldierImg, player.getPosition().x, player.getPosition().y, 150,150,null);
         //인질 캐릭터 그리기
         g.drawImage(hostageImg, hostage.x, hostage.y, 100,100,null);
         //비행기 그리기
         g.drawImage(airplaneImg, emergencyThread.x, emergencyThread.y, 100,100,null);
+        //몬스터 그리기
         for (String word : enemyMap.keySet()) {
             Enemy enemy = enemyMap.get(word);
-            g.drawImage(monsterWeakImg, enemy.getX(), enemy.getY(), 100, 100, null);
-            g.drawString(word, enemy.getX()+25, enemy.getY());
+            g.drawImage(monsterWeakImg, enemy.getPosition().x, enemy.getPosition().y, 100, 100, null);
+            g.drawString(word, enemy.getPosition().x+25, enemy.getPosition().y);
         }
     }
 }
