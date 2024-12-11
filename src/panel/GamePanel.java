@@ -22,10 +22,12 @@ public class GamePanel extends JPanel {
     private ImageIcon shootingSoldierIcon = new ImageIcon("src/images/shooting_soldier.png");
     private ImageIcon monster_weakIcon = new ImageIcon("src/images/monster_weak.png");
     private ImageIcon hostageIcon = new ImageIcon("src/images/hostage.jpg");
+    private ImageIcon airplaneIcon = new ImageIcon("src/images/airplane.png");
     private Image backgroundImg = backgroundIcon.getImage();
     private Image walkingSoldierImg = walkingSoldierIcon.getImage();
     private Image monsterWeakImg = monster_weakIcon.getImage();
     private Image hostageImg = hostageIcon.getImage();
+    private Image airplaneImg = airplaneIcon.getImage();
 
     // 기록 로딩
     private TextSource textSource = null;
@@ -42,8 +44,11 @@ public class GamePanel extends JPanel {
 
     private MonsterMakingThread monsterMakingThread = new MonsterMakingThread();
     private MonsterMovingThread monsterMovingThread = new MonsterMovingThread();
+    private EmergencyThread emergencyThread = new EmergencyThread();
 
     private Map<String, Enemy> enemyMap = new ConcurrentHashMap<>();
+
+    private boolean emergencyFlag = false;
 
     public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel, InputNamePanel inputNamePanel) {
 
@@ -62,6 +67,7 @@ public class GamePanel extends JPanel {
 
         monsterMakingThread.start();
         monsterMovingThread.start();
+        emergencyThread.start();
     }
 
     private int getRandomLocationInMap(){
@@ -126,7 +132,7 @@ public class GamePanel extends JPanel {
 
                 // 플레이어 사망
                 if (statusPanel.getLife() <= 0) {
-                    gameOver();
+                    gameOver(scorePanel.getScore());
                 }
 
             }else{ //플레이어와 닿지 않을 때
@@ -136,14 +142,16 @@ public class GamePanel extends JPanel {
     }
 
     // 게임 오버
-    private void gameOver(){
+    private void gameOver(int score){
 
         // 몬스터 이동, 생성 스레드 종료
         monsterMakingThread.interrupt();
         monsterMovingThread.interrupt();
+        // 공습경보 스레드 종료
+        emergencyThread.interrupt();
 
         // 이름&점수 기록
-        scoreRecord.recordScore(inputNamePanel.getName(), scorePanel.getScore());
+        scoreRecord.recordScore(inputNamePanel.getName(), score);
     }
 
     // 몬스터 때리는 메서드
@@ -183,11 +191,16 @@ public class GamePanel extends JPanel {
                         return;
                     }
 
-
                     // 총알이 있으면 일단 발사 -> 총알 감소 -> 몬스터 때림 -> 재장전
                     if (statusPanel.getCurrentBulletAmount() > 0) {
 
-                        statusPanel.decreaseBullet(); //총알 감소
+                        statusPanel.decreaseBullet(); //총알 감소(발사함)
+
+                        // 공습경보 해제 위한 단어 입력 성공 시, emergencyFlag 로 바꿈 (공습경보 대처완료)
+                        if (text.equals("공습경보") || text.equals("emgergency")) {
+                            emergencyFlag = true;
+                        }
+
                         // 단어에 해당하는 몬스터 존재하면 몬스터 때림
                         if(enemyMap.containsKey(text) ){
                             hitEnemy(text); //몬스터 때림
@@ -240,6 +253,51 @@ public class GamePanel extends JPanel {
         }
     }
 
+    class EmergencyThread extends Thread {
+
+        private int x;
+        private int y;
+        private int randTiming;
+
+        private EmergencyThread() {
+            x=0; y=1000; // 스레드 처음에 생성할 때는 비행기 숨김
+        }
+
+        @Override
+        public void run() {
+
+            while(true){
+
+                try {
+                    randTiming = (int) (Math.random() * 3000);
+                    x = getRandomLocationInMap();
+                    y = 800;
+                    //난수만큼 sleep. sleep 후에 공습경보 시작
+                    sleep(randTiming);
+                    //공습경보 발생시 특정 단어 입력했는지 검사하기 위한 flag false로 초기화
+                    emergencyFlag = false;
+                    // 공습경보
+                    while (y > 0) {
+                        sleep(4);
+                        y -= 1;
+                        repaint();
+                    }
+                    // 공습경보 끝날 때까지 "공습경보" or "emergency" 입력하지 못했다면?
+                    // true이면 특정 단어 입력 성공한거임
+                    if(!emergencyFlag){
+                        //게임 종료 및 점수 0점으로 마무리
+                        gameOver(0);
+                    }
+
+                } catch (InterruptedException e) {
+                    return;
+                }
+
+            }
+
+        }
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -249,6 +307,8 @@ public class GamePanel extends JPanel {
         g.drawImage(walkingSoldierImg, player.getX(), player.getY(), 150,150,null);
         //인질 캐릭터 그리기
         g.drawImage(hostageImg, hostage.x, hostage.y, 100,100,null);
+        //비행기 그리기
+        g.drawImage(airplaneImg, emergencyThread.x, emergencyThread.y, 100,100,null);
         for (String word : enemyMap.keySet()) {
             Enemy enemy = enemyMap.get(word);
             g.drawImage(monsterWeakImg, enemy.getX(), enemy.getY(), 100, 100, null);
