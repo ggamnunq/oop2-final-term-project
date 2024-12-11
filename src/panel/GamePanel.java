@@ -74,6 +74,35 @@ public class GamePanel extends JPanel {
         return (int) (Math.random() * 600) + 50;
     }
 
+    private Point getRandomSideLocationInMap(){
+        int edge = (int) (Math.random() * 4);
+        int x, y;
+
+        switch(edge) {
+            case 0:
+                x = getRandomLocationInMap();
+                y = 0;
+                break;
+            case 1:
+                x = getRandomLocationInMap();
+                y = getHeight();
+                break;
+            case 2:
+                x = 0;
+                y = getRandomLocationInMap();
+                break;
+            case 3:
+                x = getWidth();
+                y = getRandomLocationInMap();
+                break;
+            default:
+                x = 0;
+                y = 0;
+        }
+
+        return new Point(x, y);
+    }
+
     private void makePlayer() {
 
         player = new John();
@@ -86,13 +115,14 @@ public class GamePanel extends JPanel {
     }
 
     private void makeMonster(){
-        int x = getRandomLocationInMap();
-        int y = getRandomLocationInMap();
+//        int x = getRandomLocationInMap();
+//        int y = getRandomLocationInMap();
+        Point randomLocation = getRandomSideLocationInMap();
         String randomString = textSource.getRandomString();
         while (enemyMap.containsKey(randomString)) {
             randomString = textSource.getRandomString();
         }
-        enemyMap.put(textSource.getRandomString(), new Enemy(2,x,y));
+        enemyMap.put(textSource.getRandomString(), new Enemy(2,randomLocation.y,randomLocation.x));
     }
 
     private void moveMonsters(){
@@ -155,7 +185,7 @@ public class GamePanel extends JPanel {
     }
 
     // 몬스터 때리는 메서드
-    private boolean hitEnemy(String word){
+    private void hitEnemy(String word){
 
         Enemy enemy = enemyMap.get(word);
         enemy.damaged(1); // 몬스터에 데미지 입힘
@@ -169,9 +199,8 @@ public class GamePanel extends JPanel {
         }else{ //때려서 몬스터가 죽은 경우, 점수 증가
             scorePanel.increaseScore(1);
         }
-        return true;
-    }
 
+    }
 
     class InputPanel extends JPanel {
 
@@ -278,7 +307,7 @@ public class GamePanel extends JPanel {
                     emergencyFlag = false;
                     // 공습경보
                     while (y > 0) {
-                        sleep(4);
+                        sleep(7);
                         y -= 1;
                         repaint();
                     }
