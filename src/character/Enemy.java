@@ -1,36 +1,32 @@
 package character;
 
+import java.awt.*;
+
 public class Enemy {
 
     private int life;
-    private int x, y;
+    private Point position;
     private String word;
 
     public Enemy(int life) {
         this.life = life;
     }
 
-    public Enemy(int life, int x, int y) {
+    public Enemy(int life, Point position) {
         this(life);
-        this.x = x;
-        this.y = y;
+        this.position = position;
     }
 
     public void damaged(int damage) {
         life -= damage;
     }
 
-    public int getY() {
-        return y;
+    public Point getPosition() {
+        return position;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public void setLocation(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public void setPosition(Point position) {
+        this.position = position;
     }
 
     public int getLife() {
