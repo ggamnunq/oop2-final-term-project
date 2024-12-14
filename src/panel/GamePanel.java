@@ -1,5 +1,6 @@
 package panel;
 
+import enums.Difficulty;
 import resource.ScoreRecord;
 import resource.TextSource;
 import character.Enemy;
@@ -40,17 +41,23 @@ public class GamePanel extends JPanel {
     // 게임 시작 전 이름 입력하는 패널
     private InputNamePanel inputNamePanel = null;
 
+    //캐릭터와 인질
     private Character character = null;
     private Point hostage = null;
 
+    //게임 동작을 위한 스레드들
     private MonsterMakingThread monsterMakingThread = new MonsterMakingThread();
     private MonsterMovingThread monsterMovingThread = new MonsterMovingThread();
     private PlayerMovingThread playerMovingThread = null;
     private EmergencyThread emergencyThread = new EmergencyThread();
 
+    //몬스터 저장 위한 Map
     private Map<String, Enemy> enemyMap = new ConcurrentHashMap<>();
 
+    //공습경보 상황인지 구분하기 위한 변수
     private boolean emergencyFlag = false;
+
+    private Difficulty difficulty = null;
 
     public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel, InputNamePanel inputNamePanel) {
 
@@ -70,6 +77,11 @@ public class GamePanel extends JPanel {
         this.character = character;
         statusPanel.setCharacter(character);
         makePlayer();
+    }
+
+    // 난이도 설정
+    public void setDifficulty(Difficulty.DifficultyEnum difficulty){
+        this.difficulty = new Difficulty(difficulty);
     }
 
     public void gameStart(){
@@ -126,12 +138,12 @@ public class GamePanel extends JPanel {
         while (enemyMap.containsKey(randomString)) {
             randomString = textSource.getRandomString();
         }
-        enemyMap.put(textSource.getRandomString(), new Enemy(2, randomLocation));
+        enemyMap.put(textSource.getRandomString(), new Enemy(difficulty.getMonsterLife(), randomLocation));
     }
 
     private void moveMonsters(){
 
-        int moveDistance = 1;
+        int moveDistance = difficulty.getMonsterMovingSpeed();
         int crashXRange = 30;
         int crashYRange = 50;
         Point playerPos = character.getPosition();

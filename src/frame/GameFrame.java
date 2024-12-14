@@ -10,13 +10,13 @@ import java.awt.*;
 public class GameFrame extends JFrame {
 
     private HomePanel homePanel = new HomePanel(this);
-    private SelectDifficultyPanel selectDifficultyPanel = new SelectDifficultyPanel(this);
     private HowToPlayPanel howToPlayPanel = new HowToPlayPanel(this);
     private InputNamePanel inputNamePanel = new InputNamePanel(this);
     private TextSource textSource = new TextSource();
     private ScorePanel scorePanel = new ScorePanel();
     private StatusPanel statusPanel = new StatusPanel();
     private GamePanel gamePanel = new GamePanel(textSource, scorePanel, statusPanel, inputNamePanel);
+    private SelectDifficultyPanel selectDifficultyPanel = new SelectDifficultyPanel(this, gamePanel);
     private SelectCharacterPanel selectCharacterPanel = new SelectCharacterPanel(this, gamePanel);
 
     public GameFrame() {
