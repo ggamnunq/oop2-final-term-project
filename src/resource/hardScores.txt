@@ -1,0 +1,6 @@
+d 3 Hard
+aa 1 Hard
+dddaaaa 14 Hard
+d 3 Hard
+d 5 Hard
+zxxxx 1

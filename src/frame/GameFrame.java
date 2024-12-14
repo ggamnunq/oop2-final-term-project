@@ -2,6 +2,7 @@ package frame;
 
 import enums.Panels;
 import panel.*;
+import resource.ScoreRecord;
 import resource.TextSource;
 
 import javax.swing.*;
@@ -15,9 +16,11 @@ public class GameFrame extends JFrame {
     private TextSource textSource = new TextSource();
     private ScorePanel scorePanel = new ScorePanel();
     private StatusPanel statusPanel = new StatusPanel();
-    private GamePanel gamePanel = new GamePanel(textSource, scorePanel, statusPanel, inputNamePanel);
+    private ScoreRecord scoreRecord = new ScoreRecord();
+    private GamePanel gamePanel = new GamePanel(textSource, scorePanel, statusPanel, inputNamePanel, scoreRecord);
     private SelectDifficultyPanel selectDifficultyPanel = new SelectDifficultyPanel(this, gamePanel);
     private SelectCharacterPanel selectCharacterPanel = new SelectCharacterPanel(this, gamePanel);
+    private RankingPanel rankingPanel = new RankingPanel(this, scoreRecord);
 
     public GameFrame() {
 
@@ -51,6 +54,9 @@ public class GameFrame extends JFrame {
                 break;
             case INPUT_PLAYER_NAME:
                 setContentPane(inputNamePanel);
+                break;
+            case RANKING:
+                setContentPane(rankingPanel);
                 break;
             default:
                 // 찾는 enum 값이 없을 경우 예외 발생
