@@ -10,13 +10,14 @@ import java.awt.*;
 public class GameFrame extends JFrame {
 
     private HomePanel homePanel = new HomePanel(this);
-    private SelectCharacterPanel selectCharacterPanel = new SelectCharacterPanel(this);
     private SelectDifficultyPanel selectDifficultyPanel = new SelectDifficultyPanel(this);
     private HowToPlayPanel howToPlayPanel = new HowToPlayPanel(this);
     private InputNamePanel inputNamePanel = new InputNamePanel(this);
     private TextSource textSource = new TextSource();
     private ScorePanel scorePanel = new ScorePanel();
     private StatusPanel statusPanel = new StatusPanel();
+    private GamePanel gamePanel = new GamePanel(textSource, scorePanel, statusPanel, inputNamePanel);
+    private SelectCharacterPanel selectCharacterPanel = new SelectCharacterPanel(this, gamePanel);
 
     public GameFrame() {
 
@@ -56,8 +57,12 @@ public class GameFrame extends JFrame {
                 throw new IllegalArgumentException();
 
         }
-
         showPanel();
+    }
+
+    public void gameStart(){
+        changePanel(Panels.GAME);
+        gamePanel.gameStart();
     }
 
     //새로 설정된 패널이 제대로 적용되도록 revalidate()와 repaint() 호출
@@ -80,7 +85,7 @@ public class GameFrame extends JFrame {
         vPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
         //게임 시작 버튼을 누르는 시기에 GamePanel 객체를 만들도록 함
-        hPane.setLeftComponent(new GamePanel(textSource, scorePanel, statusPanel, inputNamePanel));
+        hPane.setLeftComponent(gamePanel);
         hPane.setRightComponent(vPane);
         vPane.setDividerLocation(400);
         vPane.setTopComponent(scorePanel);

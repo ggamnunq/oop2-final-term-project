@@ -5,6 +5,8 @@ import frame.GameFrame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class SelectDifficultyPanel extends BasePanel {
 
@@ -19,8 +21,8 @@ public class SelectDifficultyPanel extends BasePanel {
     public SelectDifficultyPanel(GameFrame gameFrame) {
         super(gameFrame);
         setLayout(null);
-        putChangePanelButton(this, nextLabel, Panels.INPUT_PLAYER_NAME, 900,650);
         putChangePanelButton(this, previousLabel, Panels.SELECT_CHARACTER, 100,650);
+        putChangePanelButton(this, nextLabel, Panels.INPUT_PLAYER_NAME, 900,650);
     }
 
 

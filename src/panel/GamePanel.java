@@ -3,8 +3,7 @@ package panel;
 import resource.ScoreRecord;
 import resource.TextSource;
 import character.Enemy;
-import character.John;
-import character.Player;
+import character.Character;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,16 +33,19 @@ public class GamePanel extends JPanel {
     private ScoreRecord scoreRecord = new ScoreRecord();
 
     // 패널들 로딩
+    // 게임 내 구성된 패널
     private ScorePanel scorePanel = null;
-    private InputNamePanel inputNamePanel = null;
-    private StatusPanel statusPanel = new StatusPanel();
+    private StatusPanel statusPanel = null;
     private InputPanel inputPanel = new InputPanel();
+    // 게임 시작 전 이름 입력하는 패널
+    private InputNamePanel inputNamePanel = null;
 
-    private Player player = null;
+    private Character character = null;
     private Point hostage = null;
 
     private MonsterMakingThread monsterMakingThread = new MonsterMakingThread();
     private MonsterMovingThread monsterMovingThread = new MonsterMovingThread();
+    private PlayerMovingThread playerMovingThread = null;
     private EmergencyThread emergencyThread = new EmergencyThread();
 
     private Map<String, Enemy> enemyMap = new ConcurrentHashMap<>();
@@ -52,19 +54,26 @@ public class GamePanel extends JPanel {
 
     public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel, InputNamePanel inputNamePanel) {
 
+        this.inputNamePanel = inputNamePanel;
+        this.textSource = textSource;
         this.scorePanel = scorePanel;
         this.statusPanel = statusPanel;
-        this.inputNamePanel = inputNamePanel;
-
-        this.textSource = textSource;
 
         setLayout(new BorderLayout());
         inputPanel.setLocation(200, 200);
         add(inputPanel, BorderLayout.SOUTH);
-
-        makePlayer();
         makeHostage();
+    }
 
+    // 게임의 캐릭터 설정
+    public void setCharacter(Character character){
+        this.character = character;
+        statusPanel.setCharacter(character);
+        makePlayer();
+    }
+
+    public void gameStart(){
+        //여기부터 게임시작
         monsterMakingThread.start();
         monsterMovingThread.start();
         emergencyThread.start();
@@ -104,9 +113,7 @@ public class GamePanel extends JPanel {
     }
 
     private void makePlayer() {
-
-        player = new John();
-        player.setPosition(new Point(getRandomLocationInMap(), getRandomLocationInMap()));
+        character.setPosition(new Point(getRandomLocationInMap(), getRandomLocationInMap()));
     }
 
     private void makeHostage() {
@@ -127,7 +134,7 @@ public class GamePanel extends JPanel {
         int moveDistance = 1;
         int crashXRange = 30;
         int crashYRange = 50;
-        Point playerPos = player.getPosition();
+        Point playerPos = character.getPosition();
 
         for (String word : enemyMap.keySet()) {
 
@@ -158,9 +165,43 @@ public class GamePanel extends JPanel {
                 if (statusPanel.getLife() <= 0) {
                     gameOver(scorePanel.getScore());
                 }
-
             }
         }
+        repaint();
+    }
+
+    // 플레이어 움직임
+    private boolean movePlayer(Point destinationPos){
+
+        Point playerPos = character.getPosition();
+        int moveDistance = 1;
+
+        if (playerPos.x < destinationPos.x) {
+            playerPos.x += moveDistance;
+        } else {
+            playerPos.x -= moveDistance;
+        }
+
+        if (playerPos.y < destinationPos.y) {
+            playerPos.y += moveDistance;
+        }else{
+            playerPos.y -= moveDistance;
+        }
+
+        int collisionRange = 20;
+        if(playerPos.x == destinationPos.x && playerPos.y == destinationPos.y){
+            if (Math.abs(hostage.x - playerPos.x) <= collisionRange
+                    && Math.abs(hostage.y - playerPos.y) <= collisionRange) {
+                scorePanel.increaseScore(10);
+                hostage.x = getRandomLocationInMap();
+                hostage.y = getRandomLocationInMap();
+                repaint();
+            }
+            repaint();
+            return true;
+        }
+
+        return false;
     }
 
     // 게임 오버
@@ -171,16 +212,8 @@ public class GamePanel extends JPanel {
         monsterMovingThread.interrupt();
         // 공습경보 스레드 종료
         emergencyThread.interrupt();
-
         // 이름&점수 기록
         scoreRecord.recordScore(inputNamePanel.getName(), score);
-    }
-
-    // 플레이어 움직임
-    private void movePlayer(){
-
-
-
     }
 
     // 몬스터 때리는 메서드
@@ -199,7 +232,12 @@ public class GamePanel extends JPanel {
             //점수 증가
             scorePanel.increaseScore(1);
             //플레이어가 인질 방향으로 움직임
-            movePlayer();
+            //playerThread가 null아 아닌지, run()메서드가 실행중이라면 interrupt하고 새로운 스레드를 생성하여 다시 움직인다.
+            if (playerMovingThread != null && playerMovingThread.isAlive()) {
+                playerMovingThread.interrupt();
+            }
+            playerMovingThread = new PlayerMovingThread();
+            playerMovingThread.start();
         }
 
     }
@@ -228,7 +266,7 @@ public class GamePanel extends JPanel {
                         statusPanel.decreaseBullet(); //총알 감소(발사함)
 
                         // 공습경보 해제 위한 단어 입력 성공 시, emergencyFlag 로 바꿈 (공습경보 대처완료)
-                        if (text.equals("공습경보") || text.equals("emgergency")) {
+                        if (text.equals("공습경보") || text.equals("emergency")) {
                             emergencyFlag = true;
                         }
 
@@ -274,7 +312,6 @@ public class GamePanel extends JPanel {
         public void run() {
             while (true) {
                 moveMonsters();
-                repaint();
                 try{
                     sleep(100);
                 }catch(InterruptedException e){
@@ -300,7 +337,7 @@ public class GamePanel extends JPanel {
             while(true){
 
                 try {
-                    randTiming = (int) (Math.random() * 3000);
+                    randTiming = (int) (Math.random() * 30000);
                     x = getRandomLocationInMap();
                     y = 800;
                     //난수만큼 sleep. sleep 후에 공습경보 시작
@@ -331,17 +368,38 @@ public class GamePanel extends JPanel {
 
     class PlayerMovingThread extends Thread {
 
-        private int x, y;
-
-        public PlayerMovingThread(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
         @Override
         public void run() {
 
+            int destination = 50;
+            Point destinationPos = new Point();
+            boolean arriveFlag = false;
+            Point playerPos = character.getPosition();
 
+            destinationPos.x = playerPos.x;
+            destinationPos.y = playerPos.y;
+
+            if (playerPos.x < hostage.x) {
+                destinationPos.x += destination;
+            }else if(playerPos.x > hostage.x) {
+                destinationPos.x -= destination;
+            }
+
+            if (playerPos.y < hostage.y) {
+                destinationPos.y += destination;
+            } else if (playerPos.y > hostage.y) {
+                destinationPos.y -= destination;
+            }
+
+            while (!arriveFlag) {
+                try {
+                    sleep(10);
+                    arriveFlag = movePlayer(destinationPos);
+                    repaint();
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
 
         }
     }
@@ -352,7 +410,7 @@ public class GamePanel extends JPanel {
         //배경이미지 그리기
         g.drawImage(backgroundImg, 0,0, this.getWidth(), this.getHeight(), null);
         //플레이어 그리기
-        g.drawImage(walkingSoldierImg, player.getPosition().x, player.getPosition().y, 150,150,null);
+        g.drawImage(walkingSoldierImg, character.getPosition().x, character.getPosition().y, 150,150,null);
         //인질 캐릭터 그리기
         g.drawImage(hostageImg, hostage.x, hostage.y, 100,100,null);
         //비행기 그리기
@@ -361,6 +419,7 @@ public class GamePanel extends JPanel {
         for (String word : enemyMap.keySet()) {
             Enemy enemy = enemyMap.get(word);
             g.drawImage(monsterWeakImg, enemy.getPosition().x, enemy.getPosition().y, 100, 100, null);
+            setForeground(Color.WHITE);
             g.drawString(word, enemy.getPosition().x+25, enemy.getPosition().y);
         }
     }

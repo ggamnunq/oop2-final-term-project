@@ -1,5 +1,7 @@
 package panel;
 
+import character.Character;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,16 +13,18 @@ public class StatusPanel extends JPanel {
     private Image bulletImg = bulletIcon.getImage();
     private Image heartImg = heartIcon.getImage();
 
-    private int maxBulletAmount = 10;
-    private int currentBulletAmount = 10;
-    private int life = 5;
+    // 최대 총알 수 , 현재 총알 수, 생명은 GamePanel에서 Player를 설정할 때 같이 설정해줌
+    private int maxBulletAmount = 0;
+    private int currentBulletAmount = 0;
+    private int life = 0;
+
     private boolean isReloading = false;
 
+    private Character character = null;
+
+    // 생성자 생성
     public StatusPanel() {
-
         setBackground(new Color(229, 228, 228));
-        //공사중...( 선택한 플레이어마다 최대총알수&체력 다르게 할 예정 )
-
     }
 
     // 재장전 Thread
@@ -36,7 +40,7 @@ public class StatusPanel extends JPanel {
                 isReloading = true;
                 repaint();
                 // 재장전 수행
-                sleep(3000);
+                sleep(character.getReloadingTime());
                 // 현재 총알 수 변경 & 재장전 상태 변경 -> repaint
                 currentBulletAmount = maxBulletAmount;
                 isReloading = false;
@@ -98,4 +102,11 @@ public class StatusPanel extends JPanel {
         return life;
     }
 
+    public void setCharacter(Character character) {
+        this.character = character;
+        this.maxBulletAmount = character.getMaxBulletAmount();
+        this.currentBulletAmount = maxBulletAmount;
+        this.life = character.getLife();
+        repaint();
+    }
 }

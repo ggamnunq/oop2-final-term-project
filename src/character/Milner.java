@@ -1,12 +1,13 @@
 package character;
 
-public class Milner extends Player {
+public class Milner extends Character {
 
-    private static int LIFE = 4;
-    private static int MAXBULLET = 20;
+    private static int LIFE = 5;
+    private static int MAXBULLET = 5;
+    private static int RELOADING_TIME = 1000;
 
     public Milner(){
-        super(LIFE, MAXBULLET);
+        super(LIFE, MAXBULLET, RELOADING_TIME);
     }
 
 }

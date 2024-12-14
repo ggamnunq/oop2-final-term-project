@@ -39,17 +39,15 @@ public class InputNamePanel extends BasePanel {
         inputField.setHorizontalAlignment(JTextField.CENTER); // 텍스트 가운데 정렬
         add(inputField);
 
-
         gameStartButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
 
-                name = inputField.getText().trim();
-
-                if (name.length() == 0) {
-                    return;
-                }
-                gameFrame.changePanel(Panels.GAME);
+            name = inputField.getText().trim();
+            if (name.length() == 0) {
+                return;
+            }
+            gameFrame.gameStart();
             }
         });
 
