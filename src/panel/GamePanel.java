@@ -31,7 +31,7 @@ public class GamePanel extends JPanel {
 
     // 기록 로딩
     private TextSource textSource = null;
-    private ScoreRecord scoreRecord = new ScoreRecord();
+    private ScoreRecord scoreRecord = null;
 
     // 패널들 로딩
     // 게임 내 구성된 패널
@@ -59,12 +59,12 @@ public class GamePanel extends JPanel {
 
     private Difficulty difficulty = null;
 
-    public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel, InputNamePanel inputNamePanel) {
-
+    public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel, InputNamePanel inputNamePanel, ScoreRecord scoreRecord) {
         this.inputNamePanel = inputNamePanel;
         this.textSource = textSource;
         this.scorePanel = scorePanel;
         this.statusPanel = statusPanel;
+        this.scoreRecord = scoreRecord;
 
         setLayout(new BorderLayout());
         inputPanel.setLocation(200, 200);
@@ -81,6 +81,7 @@ public class GamePanel extends JPanel {
 
     // 난이도 설정
     public void setDifficulty(Difficulty.DifficultyEnum difficulty){
+        // 게임 내부에
         this.difficulty = new Difficulty(difficulty);
     }
 
@@ -225,7 +226,7 @@ public class GamePanel extends JPanel {
         // 공습경보 스레드 종료
         emergencyThread.interrupt();
         // 이름&점수 기록
-        scoreRecord.recordScore(inputNamePanel.getName(), score);
+        scoreRecord.recordScore(inputNamePanel.getName(), score, difficulty);
     }
 
     // 몬스터 때리는 메서드
