@@ -2,15 +2,17 @@ package character;
 
 import java.awt.*;
 
-public class Player {
+public class Character {
 
     private int life;
     private int maxBulletAmount;
     private Point position;
+    private int reloadingTime;
 
-    public Player(int life, int maxBulletAmount) {
+    public Character(int life, int maxBulletAmount, int reloadingTime) {
         this.life = life;
         this.maxBulletAmount = maxBulletAmount;
+        this.reloadingTime = reloadingTime;
     }
 
     public int getLife() {
@@ -25,7 +27,12 @@ public class Player {
         return position;
     }
 
+    public int getReloadingTime() {
+        return reloadingTime;
+    }
+
     public void setPosition(Point position) {
         this.position = position;
     }
+
 }

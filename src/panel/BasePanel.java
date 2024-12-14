@@ -21,9 +21,7 @@ public class BasePanel extends JPanel {
         jpanel.add(jLabel);
     }
 
-    public void putChangePanelButton(JPanel jpanel, JLabel jLabel, Panels toPanel, int xPos, int yPos) {
-
-        putButton(jpanel, jLabel, xPos, yPos);
+    public void changePanel(JLabel jLabel, Panels toPanel){
         jLabel.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -32,6 +30,12 @@ public class BasePanel extends JPanel {
             }
 
         });
+    }
+
+    public void putChangePanelButton(JPanel jpanel, JLabel jLabel, Panels toPanel, int xPos, int yPos) {
+
+        putButton(jpanel, jLabel, xPos, yPos);
+        changePanel(jLabel, toPanel);
     }
 
 }
