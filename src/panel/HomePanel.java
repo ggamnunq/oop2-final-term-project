@@ -34,7 +34,7 @@ public class HomePanel extends BasePanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         //배경이미지 그리기
-        g.drawImage(backgroundImg, 0,0, this.getWidth(), this.getHeight(),0,0, backgroundIcon.getIconHeight(), backgroundIcon.getIconHeight()-100, null);
+        g.drawImage(backgroundImg, 0,0, this.getWidth(), this.getHeight(),0,0, backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight()-100, null);
     }
 
 }
