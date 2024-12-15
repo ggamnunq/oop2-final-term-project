@@ -78,11 +78,9 @@ public class RankingPanel extends BasePanel{
             String name = strings[0];
             String score = strings[1];
             setFont(new Font("Arial", Font.BOLD, 50));
-            setForeground(Color.WHITE);
+            setForeground(new Color(237, 236, 236, 194));
             g.drawString(name, 550, 380+((i)*85));
             g.drawString(score+"점", 750, 380+((i)*85));
         }
     }
-
-
 }
