@@ -21,6 +21,7 @@ public class GameFrame extends JFrame {
     private SelectDifficultyPanel selectDifficultyPanel = new SelectDifficultyPanel(this, gamePanel);
     private SelectCharacterPanel selectCharacterPanel = new SelectCharacterPanel(this, gamePanel);
     private RankingPanel rankingPanel = new RankingPanel(this, scoreRecord);
+    private InputWordPanel inputWordPanel = new InputWordPanel(this, textSource);
 
     public GameFrame() {
 
@@ -57,6 +58,9 @@ public class GameFrame extends JFrame {
                 break;
             case RANKING:
                 setContentPane(rankingPanel);
+                break;
+            case ADD_WORDS:
+                setContentPane(inputWordPanel);
                 break;
             default:
                 // 찾는 enum 값이 없을 경우 예외 발생

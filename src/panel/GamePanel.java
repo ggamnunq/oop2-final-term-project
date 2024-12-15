@@ -281,6 +281,7 @@ public class GamePanel extends JPanel {
                         // 공습경보 해제 위한 단어 입력 성공 시, emergencyFlag 로 바꿈 (공습경보 대처완료)
                         if (text.equals("공습경보") || text.equals("emergency")) {
                             emergencyFlag = true;
+                            emergencyThread.interrupt();
                         }
 
                         // 단어에 해당하는 몬스터 존재하면 몬스터 때림
