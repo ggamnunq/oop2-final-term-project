@@ -21,6 +21,10 @@ public class BasePanel extends JPanel {
         jpanel.add(jLabel);
     }
 
+    public void changePanel(Panels toPanel) {
+        gameFrame.changePanel(toPanel);
+    }
+
     public void changePanel(JLabel jLabel, Panels toPanel){
         jLabel.addMouseListener(new MouseAdapter() {
 

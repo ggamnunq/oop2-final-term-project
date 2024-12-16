@@ -14,7 +14,7 @@ import java.util.List;
 public class RankingPanel extends BasePanel{
 
     private ImageIcon backgroundIcon = new ImageIcon("src/images/rankingBackground.png");
-    private ImageIcon previousIcon = new ImageIcon("src/images/previousButton.png");
+    private ImageIcon homeIcon = new ImageIcon("src/images/homeButton.png");
 
     private Image backgroundImg = backgroundIcon.getImage();
     private Difficulty difficulty = new Difficulty(Difficulty.DifficultyEnum.EASY);
@@ -22,7 +22,7 @@ public class RankingPanel extends BasePanel{
     private SelectDifficultyPanel selectDifficultyPanel = new SelectDifficultyPanel();
     private ScoreRecord scoreRecord = null;
 
-    private JLabel previousLabel = new JLabel(previousIcon);
+    private JLabel homeLabel = new JLabel(homeIcon);
 
     public RankingPanel(GameFrame gameFrame, ScoreRecord scoreRecord) {
 
@@ -31,7 +31,7 @@ public class RankingPanel extends BasePanel{
         this.scoreRecord = scoreRecord;
 
         // 이전 버튼. 난이도 설정으로 이동
-        putChangePanelButton(this, previousLabel, Panels.HOME, 100, 650);
+        putChangePanelButton(this, homeLabel, Panels.HOME, 100, 650);
 
         // 난이도 선택 패널 버튼
         selectDifficultyPanel.setLocation(0,0); // 패널 위치 설정

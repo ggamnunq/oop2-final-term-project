@@ -48,6 +48,7 @@ public class InputNamePanel extends BasePanel {
                 return;
             }
             gameFrame.gameStart();
+            inputField.setText("");
             }
         });
 

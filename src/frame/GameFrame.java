@@ -17,7 +17,7 @@ public class GameFrame extends JFrame {
     private ScorePanel scorePanel = new ScorePanel();
     private StatusPanel statusPanel = new StatusPanel();
     private ScoreRecord scoreRecord = new ScoreRecord();
-    private GamePanel gamePanel = new GamePanel(textSource, scorePanel, statusPanel, inputNamePanel, scoreRecord);
+    private GamePanel gamePanel = new GamePanel(this, textSource, scorePanel, statusPanel, inputNamePanel, scoreRecord);
     private SelectDifficultyPanel selectDifficultyPanel = new SelectDifficultyPanel(this, gamePanel);
     private SelectCharacterPanel selectCharacterPanel = new SelectCharacterPanel(this, gamePanel);
     private RankingPanel rankingPanel = new RankingPanel(this, scoreRecord);
@@ -25,7 +25,7 @@ public class GameFrame extends JFrame {
 
     public GameFrame() {
 
-        setTitle("게임");
+        setTitle("라이언 일병 구하기");
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
