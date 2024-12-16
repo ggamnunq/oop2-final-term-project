@@ -1,6 +1,8 @@
 package panel;
 
 import enums.Difficulty;
+import enums.Panels;
+import frame.GameFrame;
 import resource.ScoreRecord;
 import resource.TextSource;
 import character.Enemy;
@@ -14,7 +16,7 @@ import java.awt.event.ActionListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GamePanel extends JPanel {
+public class GamePanel extends BasePanel {
 
     //이미지 파일 로딩
     private ImageIcon backgroundIcon = new ImageIcon("src/images/forest.jpg");
@@ -46,30 +48,45 @@ public class GamePanel extends JPanel {
     private Point hostage = null;
 
     //게임 동작을 위한 스레드들
-    private MonsterMakingThread monsterMakingThread = new MonsterMakingThread();
-    private MonsterMovingThread monsterMovingThread = new MonsterMovingThread();
+    private MonsterMakingThread monsterMakingThread = null;
+    private MonsterMovingThread monsterMovingThread = null;
+    private EmergencyThread emergencyThread = null;
+
+    //플레어어가 움직이는 스레드. 몬스터를 때릴 때마다 새로운 스레드 만듦
     private PlayerMovingThread playerMovingThread = null;
-    private EmergencyThread emergencyThread = new EmergencyThread();
 
     //몬스터 저장 위한 Map
-    private Map<String, Enemy> enemyMap = new ConcurrentHashMap<>();
+    private Map<String, Enemy> enemyMap = null;
+
+    private Difficulty difficulty = null;
 
     //공습경보 상황인지 구분하기 위한 변수
     private boolean emergencyFlag = false;
 
-    private Difficulty difficulty = null;
-
-    public GamePanel(TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel, InputNamePanel inputNamePanel, ScoreRecord scoreRecord) {
+    public GamePanel(GameFrame gameFrame, TextSource textSource, ScorePanel scorePanel, StatusPanel statusPanel, InputNamePanel inputNamePanel, ScoreRecord scoreRecord) {
+        super(gameFrame);
         this.inputNamePanel = inputNamePanel;
         this.textSource = textSource;
         this.scorePanel = scorePanel;
         this.statusPanel = statusPanel;
         this.scoreRecord = scoreRecord;
 
-        setLayout(new BorderLayout());
-        inputPanel.setLocation(200, 200);
+        setLayout(null);
         add(inputPanel, BorderLayout.SOUTH);
         makeHostage();
+    }
+
+    public void gameStart(){
+
+        enemyMap = new ConcurrentHashMap<>();
+
+        monsterMovingThread = new MonsterMovingThread();
+        monsterMakingThread = new MonsterMakingThread();
+        emergencyThread = new EmergencyThread();
+
+        monsterMakingThread.start();
+        monsterMovingThread.start();
+        emergencyThread.start();
     }
 
     // 게임의 캐릭터 설정
@@ -83,13 +100,6 @@ public class GamePanel extends JPanel {
     public void setDifficulty(Difficulty.DifficultyEnum difficulty){
         // 게임 내부에
         this.difficulty = new Difficulty(difficulty);
-    }
-
-    public void gameStart(){
-        //여기부터 게임시작
-        monsterMakingThread.start();
-        monsterMovingThread.start();
-        emergencyThread.start();
     }
 
     private int getRandomLocationInMap(){
@@ -227,6 +237,8 @@ public class GamePanel extends JPanel {
         emergencyThread.interrupt();
         // 이름&점수 기록
         scoreRecord.recordScore(inputNamePanel.getName(), score, difficulty);
+        // 랭킹 화면으로 이동
+        changePanel(Panels.RANKING);
     }
 
     // 몬스터 때리는 메서드
@@ -281,7 +293,6 @@ public class GamePanel extends JPanel {
                         // 공습경보 해제 위한 단어 입력 성공 시, emergencyFlag 로 바꿈 (공습경보 대처완료)
                         if (text.equals("공습경보") || text.equals("emergency")) {
                             emergencyFlag = true;
-                            emergencyThread.interrupt();
                         }
 
                         // 단어에 해당하는 몬스터 존재하면 몬스터 때림
@@ -418,9 +429,11 @@ public class GamePanel extends JPanel {
         }
     }
 
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         //배경이미지 그리기
         g.drawImage(backgroundImg, 0,0, this.getWidth(), this.getHeight(), null);
         //플레이어 그리기
@@ -429,12 +442,15 @@ public class GamePanel extends JPanel {
         g.drawImage(hostageImg, hostage.x, hostage.y, 100,100,null);
         //비행기 그리기
         g.drawImage(airplaneImg, emergencyThread.x, emergencyThread.y, 100,100,null);
+
         //몬스터 그리기
+        setFont(new Font("Arial", Font.BOLD, 20));
         for (String word : enemyMap.keySet()) {
             Enemy enemy = enemyMap.get(word);
             g.drawImage(monsterWeakImg, enemy.getPosition().x, enemy.getPosition().y, 100, 100, null);
             setForeground(Color.WHITE);
-            g.drawString(word, enemy.getPosition().x+25, enemy.getPosition().y);
+            g.drawString(word, enemy.getPosition().x+20, enemy.getPosition().y);
         }
+
     }
 }
